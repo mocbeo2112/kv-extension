@@ -1,0 +1,48 @@
+{
+  "name": "kv-support-tech",
+  "version": "1.0.0",
+  "description": "Generated with @larscom/ng-chrome-extension",
+  "scripts": {
+    "ng": "ng",
+    "start": "npm run watch",
+    "build:angular": "ng build --configuration development",
+    "build:angular-production": "ng build --configuration production",
+    "watch:angular": "ng build --watch --configuration development --delete-output-path false --source-map=true --plugin ~angular/sourcemaps-plugin.js",
+    "build:chrome": "webpack --config chrome/webpack.config.js",
+    "build:chrome-production": "webpack --config chrome/webpack.config.prod.js",
+    "watch:chrome": "webpack --config chrome/webpack.config.js -w",
+    "build": "npm run clean && npm run build:angular && npm run build:chrome",
+    "build:production": "npm run build:angular-production && npm run build:chrome-production && npm run pack",
+    "watch": "npm run clean && npm-run-all --parallel watch:*",
+    "clean": "rimraf angular/dist",
+    "pack": "cd angular/dist && bestzip ../../extension-build.zip *"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^16.1.6",
+    "@angular/common": "^16.1.6",
+    "@angular/compiler": "^16.1.6",
+    "@angular/core": "^16.1.6",
+    "@angular/forms": "^16.1.6",
+    "@angular/platform-browser": "^16.1.6",
+    "@angular/platform-browser-dynamic": "^16.1.6",
+    "@angular/router": "^16.1.6",
+    "ngx-build-plus": "^16.0.0",
+    "rxjs": "~7.8.1",
+    "tslib": "^2.6.0",
+    "zone.js": "~0.13.1"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^16.1.4",
+    "@angular/cli": "~16.1.4",
+    "@angular/compiler-cli": "^16.1.6",
+    "@types/chrome": "^0.0.241",
+    "awesome-typescript-loader": "^5.2.1",
+    "bestzip": "^2.2.1",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^5.0.1",
+    "ts-loader": "^9.4.4",
+    "typescript": "~5.1.6",
+    "webpack-cli": "^5.1.4"
+  }
+}
