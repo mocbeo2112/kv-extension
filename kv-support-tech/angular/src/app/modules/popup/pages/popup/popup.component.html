@@ -38,6 +38,18 @@
   <div class="row mt-2">
     <div class="col-md-4">
       <div class="input-group">
+        <span class="input-group-text">Fbid:</span>
+        <input type="text" class="form-control" [(ngModel)]="retailerInfo.fbUT">
+        <button class="btn btn-outline-secondary" type="button" (click)="getTokenAndCopy()">
+          <i class="fas fa-file-export"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-2">
+    <div class="col-md-4">
+      <div class="input-group">
         <span class="input-group-text">Get FBUT:</span>
         <input type="text" class="form-control" [(ngModel)]="retailerInfo.fbUT">
         <button class="btn btn-outline-secondary" type="button" (click)="getTokenAndCopy()">

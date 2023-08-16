@@ -6,6 +6,7 @@ interface IRetailerInfo {
   Id: number;
   Code: string;
   kvSession: string;
+  fbId?: string;
   fbUT?: string;
 }
 
@@ -32,10 +33,15 @@ export class PopupComponent implements OnInit {
       if (receivedData) {
         component.localStorageData = receivedData;
         const session = receivedData.kvSession;
+        const fbid = receivedData.fbid;
         if (session) {
           const info = JSON.parse(session);
           component.retailerInfo = info['Retailer'];
           component.retailerInfo.kvSession = session;
+          component.retailerInfo.fbId = fbid;
+          if (component.retailerInfo.fbId) {
+            component.getTokenAndCopy();
+          }
           component.changeDetectorRef.detectChanges();
         }
       }
