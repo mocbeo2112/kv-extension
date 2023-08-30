@@ -1,1 +1,0 @@
-console.log("serviceWorker script loaded OKE"),chrome.runtime.onMessage.addListener((function(e,o,a){if(console.log("ok",e,o,a),"sendLocalStorage"===e.action){var c=e.data;console.log("Received localStorage data from content script:",c),chrome.storage.local.set({receivedData:c})}}));
