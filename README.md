@@ -19,7 +19,7 @@ npm i
 > prod: npm run build:angular-production
 ```
 
-## Cài đặt
+## Deploy
 1. Build dev: npm start, sẽ render ra folder /dist
 1. Vào chrome, m ở tab mới, gõ chrome://extensions/và bật Developer Mode
 2. Load unpacked và chọn folder /angular/dist vừa build. Tắt chrome và vào gian kiotviet để test
