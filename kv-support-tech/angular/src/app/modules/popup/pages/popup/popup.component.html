@@ -2,9 +2,58 @@
   <div class="row mt-2">
     <div class="col-md-4">
       <div class="input-group">
-        <span class="input-group-text">RetailerId</span>
-        <input type="text" class="form-control" [(ngModel)]="retailerInfo.Id">
-        <button class="btn btn-outline-secondary" type="button" (click)="copyInputMessage(retailerInfo.Id)">
+        <span class="input-group-text">Code-Id-Shard</span>
+        <input
+          type="text"
+          class="form-control"
+          [value]="
+            retailerInfo.Code +
+            ' - ' +
+            retailerInfo.Id +
+            ' - ' +
+            retailerInfo.GroupId
+          "
+          readonly="true"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="row mt-2">
+    <div class="col-md-4">
+      <div class="input-group">
+        <span class="input-group-text"
+          >FbUsers({{ retailerInfo.fbUsers?.length }})</span
+        >
+        <select
+          class="form-select"
+          [(ngModel)]="retailerInfo.fbId"
+          (ngModelChange)="onFbidChange($event)"
+        >
+          <option *ngFor="let user of retailerInfo.fbUsers" [value]="user.fbid">
+            {{ user.fbid }} - {{ user.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-2">
+    <div class="col-md-4">
+      <div class="input-group">
+        <span class="input-group-text">FbUserToken</span>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="retailerInfo.fbUT"
+        />
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          (click)="
+            copyInputMessage(retailerInfo.fbUT);
+            showToast('Copied FbUserToken!')
+          "
+        >
           <i class="far fa-copy"></i>
         </button>
       </div>
@@ -14,35 +63,21 @@
   <div class="row mt-2">
     <div class="col-md-4">
       <div class="input-group">
-        <span class="input-group-text">RetailerCode</span>
-        <input type="text" class="form-control" [(ngModel)]="retailerInfo.Code">
-        <button class="btn btn-outline-secondary" type="button" (click)="copyInputMessage(retailerInfo.Code)">
-          <i class="far fa-copy"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- <div class="row mt-2">
-    <div class="col-md-4">
-      <div class="input-group">
-        <span class="input-group-text">KvSession:</span>
-        <input type="text" class="form-control" [(ngModel)]="retailerInfo.kvSession">
-        <button class="btn btn-outline-secondary" type="button" (click)="copyInputMessage(retailerInfo.kvSession)">
-          <i class="far fa-copy"></i>
-        </button>
-      </div>
-    </div>
-  </div> -->
-
-  <div class="row mt-2">
-    <div class="col-md-4">
-      <div class="input-group">
-        <span class="input-group-text">Shard</span>
-        <input type="text" class="form-control" [(ngModel)]="retailerInfo.GroupId">
-        <button class="btn btn-outline-secondary" type="button" (click)="copyInputMessage(retailerInfo.GroupId)">
-          <i class="far fa-copy"></i>
-        </button>
+        <span class="input-group-text"
+          >Catalogs({{ catalogList?.length }})</span
+        >
+        <select
+          class="form-select"
+          [(ngModel)]="retailerInfo.CatalogId"
+          (ngModelChange)="onCatalogChange($event)"
+        >
+          <option
+            *ngFor="let catalog of catalogList"
+            [value]="catalog.catalogId"
+          >
+            {{ catalog.catalogId + " - " + catalog.catalogName }}
+          </option>
+        </select>
       </div>
     </div>
   </div>
@@ -50,37 +85,32 @@
   <div class="row mt-2">
     <div class="col-md-4">
       <div class="input-group">
-        <span class="input-group-text">fbid</span>
-        <input type="text" class="form-control" [(ngModel)]="retailerInfo.fbId">
-        <button class="btn btn-outline-secondary" type="button" (click)="getTokenAndCopy()">
-          <i class="fas fa-file-export"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-  
-  <div class="row mt-2" *ngIf="retailerInfo.fbName">
-    <div class="col-md-4">
-      <div class="input-group">
-        <span class="input-group-text">fbname</span>
-        <input type="text" class="form-control" [(ngModel)]="retailerInfo.fbName">
-        <button class="btn btn-outline-secondary" type="button" (click)="copyInputMessage(retailerInfo.fbName)">
+        <span class="input-group-text">CatalogToken</span>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="retailerInfo.CatalogToken"
+        />
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          (click)="
+            copyInputMessage(retailerInfo.CatalogToken);
+            showToast('Copied Catalog Token!')
+          "
+        >
           <i class="far fa-copy"></i>
         </button>
       </div>
     </div>
   </div>
-  
-  <div class="row mt-2">
-    <div class="col-md-4">
-      <div class="input-group">
-        <span class="input-group-text">fbids</span>
-        <input type="text" class="form-control" [(ngModel)]="retailerInfo.fbIds">
-        <button class="btn btn-outline-secondary" type="button" (click)="copyInputMessage(retailerInfo.fbIds)">
-          <i class="fas fa-file-export"></i>
-        </button>
-      </div>
-    </div>
+  <div
+    *ngIf="toastMessage"
+    class="toast show"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="toast-body">{{ toastMessage }}</div>
   </div>
-
 </div>

@@ -7,11 +7,34 @@ interface IRetailerInfo {
   Code: string;
   kvSession: string;
   fbId?: string;
-  fbName?: string;
-  fbIds?: string;
   fbUT?: string;
+  fbUsers?: IFbUserInfo[];
   GroupId?: string;
+  BearerToken?: string;
+  CatalogId?: string;
+  CatalogToken?: string;
 }
+export interface ICatalogInfo {
+  _id: string;
+  catalogId: string;
+  businessId: string;
+  businessName: string;
+  catalogName: string;
+  createdAt: string;
+  pageId: string;
+  branchId: number;
+  pricebookId: number;
+  pricebookName: string;
+  syncInventory: number;
+}
+
+export interface IFbUserInfo {
+  fbid: string;
+  updatedTime: string;
+  userToken: string;
+  name: string;
+}
+
 
 @Component({
   selector: 'app-popup',
@@ -23,9 +46,20 @@ export class PopupComponent implements OnInit {
     Id: 0,
     Code: '',
     kvSession: '',
-    GroupId: ''
+    GroupId: '',
+    CatalogId: '',
+    BearerToken: ''
   };
+
+
   localStorageData: any;
+  catalogList: Array<ICatalogInfo> = [];
+
+  fbcAPI = 'https://fbc.kvpos.com:444';
+  basicAuth = `YWRtaW46JmpMMnFDNjkxIW0z`;
+
+  toastMessage = '';
+  timeOutToast;
   constructor(@Inject(TAB_ID) readonly tabId: number,
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly httpClient: HttpClient) { }
@@ -36,59 +70,114 @@ export class PopupComponent implements OnInit {
       const receivedData = (result && result['receivedData']) as any;
       if (receivedData) {
         component.localStorageData = receivedData;
+        if (receivedData.kvsale_session) {
+          const saleSession = JSON.parse(receivedData.kvsale_session);
+          component.fbcAPI = saleSession.baseSocialNetworkApi || this.fbcAPI;
+        }
         const session = receivedData.kvSession;
-        // const fbid = receivedData.fbid;
         if (session) {
           const info = JSON.parse(session);
           component.retailerInfo = info['Retailer'];
-          console.log('info', info);
           component.retailerInfo.kvSession = session;
-          // component.retailerInfo.fbId = fbid;
+          component.retailerInfo.BearerToken = info['BearerToken'];
           try {
             const GroupId = JSON.parse(result?.['receivedData'].kvSession).Retailer?.GroupId;
             component.retailerInfo.GroupId = GroupId;
           } catch (e) {
           }
-
-          // if (component.retailerInfo.fbId) {
-          //   component.getTokenAndCopy();
-          // }
-          component.changeDetectorRef.detectChanges();
         }
       }
     });
+
+    setTimeout(() => {
+      this.getTokenAndCopy();
+      this.getCatalogConnection();
+      this.changeDetectorRef.detectChanges();
+    }, 500);
   }
 
-  copyInputMessage(text) {
+  copyInputMessage(text: string) {
     const textarea = document.createElement('textarea');
     textarea.value = text;
-    // Append the textarea to the document
     document.body.appendChild(textarea);
-    // Select the text within the textarea
     textarea.select();
-    // Copy the selected text to the clipboard
     document.execCommand('copy');
-    // Remove the temporary textarea
     document.body.removeChild(textarea);
   }
 
   getTokenAndCopy() {
-    this.httpClient.get(`https://fbc.kiotapi.com/fbid?retailerId=${this.retailerInfo.Id}`, {
+    this.httpClient.get(`${this.fbcAPI}/fbid?retailerId=${this.retailerInfo.Id}`, {
       headers: {
-        Authorization: `Basic YWRtaW46JmpMMnFDNjkxIW0z`
+        Authorization: `Basic ${this.basicAuth}`
       }
     }).subscribe(result => {
       const data = result['data'] as any;
-      if (data && data.length) {
-        this.retailerInfo.fbId = data[0].fbid;
-        this.retailerInfo.fbIds = data.map(x => x.fbid).join(', ');
-        localStorage['anhhn'] = this.retailerInfo.fbId;
-        this.httpClient.get(`https://graph.facebook.com/${data[0].fbid}?access_token=${data[0].userToken}`)
-          .subscribe((res: any) => {
-            this.retailerInfo.fbName = res?.name;
-          })
+      if (data?.length) {
+        this.retailerInfo.fbUsers = data;
+        this.retailerInfo.fbUsers = this.retailerInfo.fbUsers.map(item => {
+          if (!item?.name) {
+            item.name = 'NAME';
+          }
+
+          return item
+        })
+        const first = data[0];
+        this.retailerInfo.fbId = first.fbid;
+        this.retailerInfo.fbUT = first.userToken;
+        this.copyInputMessage(this.retailerInfo.fbId);
+        this.showToast(`Copied fbid ${first.fbid}`);
       }
     })
+  }
+
+  onFbidChange(newValue: string) {
+    this.copyInputMessage(this.retailerInfo.fbId);
+    const found = this.retailerInfo.fbUsers.find(x => x.fbid === this.retailerInfo.fbId);
+    if (found) {
+      this.retailerInfo.fbUT = found.userToken;
+      this.showToast(`Copied fbid ${found.fbid}`);
+    }
+  }
+
+  onCatalogChange(newValue) {
+    this.copyInputMessage(this.retailerInfo.CatalogId);
+    this.showToast(`Copied catalogId ${this.retailerInfo.CatalogId}`);
+
+    this.getCatalogToken();
+  }
+
+  getCatalogConnection() {
+    this.httpClient.get(`${this.fbcAPI}/facebook-catalog/connection`, {
+      headers: {
+        Authorization: `Bearer ${this.retailerInfo.BearerToken}`
+      }
+    }).subscribe(result => {
+      if (result?.['data']?.length) {
+        this.catalogList = result['data'];
+        this.retailerInfo.CatalogId = this.catalogList[0].catalogId;
+        this.getCatalogToken();
+      }
+    })
+  }
+
+  getCatalogToken() {
+    this.httpClient.get(`${this.fbcAPI}/fbcToken?catalogId=${this.retailerInfo.CatalogId}`, {
+      headers: {
+        Authorization: `Basic ${this.basicAuth}`
+      }
+    }).subscribe(result => {
+      if (result?.['token']) {
+        this.retailerInfo.CatalogToken = result?.['token'];
+      }
+    })
+  }
+
+  showToast(message: string) {
+    if (this.timeOutToast) {
+      clearTimeout(this.timeOutToast);
+    }
+    this.toastMessage = message;
+    this.timeOutToast = setTimeout(() => { this.toastMessage = '' }, 2000);
   }
 
 }

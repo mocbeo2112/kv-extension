@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Facebook POS Tester",
-  "short_name": "kv-support-tech",
-  "version": "1.0.0",
+  "short_name": "kv-support-tester",
+  "version": "2.0.0",
   "description": "Generated with @anhhn",
   "permissions": ["tabs", "storage"],
   "action": {
