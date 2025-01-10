@@ -11,7 +11,7 @@
 
 //   return true;
 // });
-console.log('KV Extention running');
+console.log('Extension KiotViet Made By Nam Anh HandSome');
 // debugger;
 var localStorageData = {};
 for (var i = 0; i < localStorage.length; i++) {

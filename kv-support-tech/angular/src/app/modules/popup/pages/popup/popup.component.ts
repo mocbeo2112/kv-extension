@@ -7,7 +7,10 @@ interface IRetailerInfo {
   Code: string;
   kvSession: string;
   fbId?: string;
+  fbName?: string;
+  fbIds?: string;
   fbUT?: string;
+  GroupId?: string;
 }
 
 @Component({
@@ -19,7 +22,8 @@ export class PopupComponent implements OnInit {
   retailerInfo: IRetailerInfo = {
     Id: 0,
     Code: '',
-    kvSession: ''
+    kvSession: '',
+    GroupId: ''
   };
   localStorageData: any;
   constructor(@Inject(TAB_ID) readonly tabId: number,
@@ -33,15 +37,22 @@ export class PopupComponent implements OnInit {
       if (receivedData) {
         component.localStorageData = receivedData;
         const session = receivedData.kvSession;
-        const fbid = receivedData.fbid;
+        // const fbid = receivedData.fbid;
         if (session) {
           const info = JSON.parse(session);
           component.retailerInfo = info['Retailer'];
+          console.log('info', info);
           component.retailerInfo.kvSession = session;
-          component.retailerInfo.fbId = fbid;
-          if (component.retailerInfo.fbId) {
-            component.getTokenAndCopy();
+          // component.retailerInfo.fbId = fbid;
+          try {
+            const GroupId = JSON.parse(result?.['receivedData'].kvSession).Retailer?.GroupId;
+            component.retailerInfo.GroupId = GroupId;
+          } catch (e) {
           }
+
+          // if (component.retailerInfo.fbId) {
+          //   component.getTokenAndCopy();
+          // }
           component.changeDetectorRef.detectChanges();
         }
       }
@@ -64,20 +75,19 @@ export class PopupComponent implements OnInit {
   getTokenAndCopy() {
     this.httpClient.get(`https://fbc.kiotapi.com/fbid?retailerId=${this.retailerInfo.Id}`, {
       headers: {
-        Authorization: `Basic xxx`
+        Authorization: `Basic YWRtaW46JmpMMnFDNjkxIW0z`
       }
     }).subscribe(result => {
-      const data = result['data'];
+      const data = result['data'] as any;
       if (data && data.length) {
-        const fbid = this.localStorageData['fbid'];
-        let found = data.find(fbuser => fbuser.fbid === fbid);
-        if (!found) {
-          found = data[0];
-        }
-        this.retailerInfo.fbUT = found.userToken;
-        this.copyInputMessage(this.retailerInfo.fbUT);
+        this.retailerInfo.fbId = data[0].fbid;
+        this.retailerInfo.fbIds = data.map(x => x.fbid).join(', ');
+        localStorage['anhhn'] = this.retailerInfo.fbId;
+        this.httpClient.get(`https://graph.facebook.com/${data[0].fbid}?access_token=${data[0].userToken}`)
+          .subscribe((res: any) => {
+            this.retailerInfo.fbName = res?.name;
+          })
       }
-      console.log(result);
     })
   }
 

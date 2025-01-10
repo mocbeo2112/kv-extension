@@ -1,6 +1,5 @@
 console.log('serviceWorker script loaded OKE');
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log('ok', request, sender, sendResponse)
     if (request.action === "sendLocalStorage") {
       var receivedData = request.data;
   
